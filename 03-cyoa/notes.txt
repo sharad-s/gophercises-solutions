@@ -1,0 +1,4 @@
+JSON-to-Go tool:
+https://mholt.github.io/json-to-go/
+
+This tool instantly converts JSON into a Go type definition. 
