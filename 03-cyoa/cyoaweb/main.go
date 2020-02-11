@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	cyoa "gophercises/03-cyoa"
@@ -20,11 +19,8 @@ func main() {
 		panic(err)
 	}
 
-	// Decode the file
-	// Any file we open is gonna be a reader, so pass it into Decoder
-	d := json.NewDecoder(f)
-	var story cyoa.Story
-	if err := d.Decode(&story); err != nil {
+	story, err := cyoa.JSONStory(f)
+	if err != nil {
 		panic(err)
 	}
 
