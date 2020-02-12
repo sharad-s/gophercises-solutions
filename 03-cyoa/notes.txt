@@ -9,3 +9,4 @@ Return whatever interface you expect that type to be.
 because it's not going to be clear to end-users what methods are available
 
 
+Use comma, ok idiom on map lookup

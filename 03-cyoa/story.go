@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
+	"strings"
 )
 
 // Story map[string]Chapter
@@ -82,12 +84,31 @@ type handler struct {
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Create template
-	// template.Must means template must complie correctly
-	err := tpl.Execute(w, h.s["intro"])
-	if err != nil {
-		panic(err)
+	// Get Path
+	// Remove leading and trailing whitespace
+	path := strings.TrimSpace(r.URL.Path)
+	if path == "" || path == "/" {
+		path = "/intro"
 	}
+	// Get all the chars of the path string starting at index 1 (removes leading /)
+	path = path[1:]
+
+	// Access the Story map to see if the path returns a chapter
+	// Use comma, ok idiom on map lookup
+	if chapter, ok := h.s[path]; ok {
+		// Create template
+		// template.Must means template must complie correctly
+		err := tpl.Execute(w, chapter)
+		if err != nil {
+			// Log verbose error, show generic error
+			log.Printf("%v", err)
+			http.Error(w, "Something went wrong...", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	http.Error(w, "Chapter not found.", http.StatusNotFound)
+
 }
 
 func init() {
