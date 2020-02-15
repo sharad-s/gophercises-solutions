@@ -28,7 +28,7 @@ func main() {
 	}
 
 	//get handler
-	h := cyoa.NewHandler(story)
+	h := cyoa.NewHandler(story, nil)
 	fmt.Printf("Starting the server on port: %d\n", *port)
 
 	// Start server

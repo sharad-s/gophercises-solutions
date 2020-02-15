@@ -116,12 +116,17 @@ var storyTmpl = `
 // NewHandler :returns http.Handler interface
 // Why not return type `handler`?
 //  If you were to create a godoc for type `handler` it would not return any methods since it isinternal
-func NewHandler(s Story) http.Handler {
-	return handler{s}
+func NewHandler(s Story, t *template.Template) http.Handler {
+	// Make sure template is provided, use default Template otherwise
+	if t == nil {
+		t = tpl
+	}
+	return handler{s, t}
 }
 
 type handler struct {
 	s Story
+	t *template.Template
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
