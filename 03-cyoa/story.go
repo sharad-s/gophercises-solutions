@@ -122,13 +122,18 @@ type HandlerOption func(h *handler)
 // The func WithTemplate returns type HandlerOption IE returns `func (h *handler)`
 // !!! The func WithTemplate directly asks for parameter `t *template.Template` but its RETURN asks for parameter `(h *handler)`
 func WithTemplate(t *template.Template) HandlerOption {
-
 	// With this, you are accessing a type that's not exported and variable that the end-user never gets to interact with it directly
 	// Return type HandlerOption which has signature `func (h *handler)``
 	return func(h *handler) {
 		h.t = t
 	}
+}
 
+func WithPathFunc(fn func(r *http.Request) string) HandlerOption {
+	// update pathFn
+	return func(h *handler) {
+		h.pathFn = fn
+	}
 }
 
 // NewHandler :returns http.Handler interface
@@ -136,7 +141,7 @@ func WithTemplate(t *template.Template) HandlerOption {
 //  If you were to create a godoc for type `handler` it would not return any methods since it isinternal
 func NewHandler(s Story, opts ...HandlerOption) http.Handler {
 	// Create a handler with  a Story & Template
-	h := handler{s, tpl}
+	h := handler{s, tpl, defaultPathFn}
 
 	// For option in variadic parameter opts
 	for _, opt := range opts {
@@ -148,11 +153,12 @@ func NewHandler(s Story, opts ...HandlerOption) http.Handler {
 }
 
 type handler struct {
-	s Story
-	t *template.Template
+	s      Story
+	t      *template.Template
+	pathFn func(r *http.Request) string
 }
 
-func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func defaultPathFn(r *http.Request) string {
 	// Get Path
 	// Remove leading and trailing whitespace
 	path := strings.TrimSpace(r.URL.Path)
@@ -161,6 +167,11 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get all the chars of the path string starting at index 1 (removes leading /)
 	path = path[1:]
+	return path
+}
+
+func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := h.pathFn(r)
 
 	// Access the Story map to see if the path returns a chapter
 	// Use comma, ok idiom on map lookup
