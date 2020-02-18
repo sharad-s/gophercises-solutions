@@ -18,6 +18,8 @@
     - Ok so for functional options, you have a `...opts` of type `Options` which returns a signature `func (h *handler)` 
     - This return signature is what holds the pointer to whatever it is you are passing in (IE your handler in this case). This allows you to modify the thing you are passing in (as options normally help you do )
     - So your functional option can take in any of its own parameters that would help that option do its intended work, but it will always return `func (h *handler)` which would modify that handler instance with the params you passed in.
+    -  ..
+    -  Name your functional options With<Option> IE WithDatabase() or WithPathFunc() - not a standard just a guideline
 
 
 #### IE:
