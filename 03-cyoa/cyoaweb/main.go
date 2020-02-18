@@ -27,8 +27,11 @@ func main() {
 		panic(err)
 	}
 
+	// Create a new test template
+	// tpl := template.Must(template.New("").Parse("Hello!"))
+
 	//get handler
-	h := cyoa.NewHandler(story, nil)
+	h := cyoa.NewHandler(story)
 	fmt.Printf("Starting the server on port: %d\n", *port)
 
 	// Start server
