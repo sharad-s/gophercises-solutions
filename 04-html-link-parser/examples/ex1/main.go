@@ -10,7 +10,9 @@ var exampleHtml = `
 <html>
 <body>
 	<h1>Yo!</h1>
-	<a href="/other-page"> A link to another page <span> some span  </span> </a>
+	<a href="/other-page"> A link to another page 
+	<span> some span  </span>
+	 </a>
 	<a href="/second-page"> A link to a second page </a>
 </body>
 </html>

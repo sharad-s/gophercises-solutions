@@ -28,6 +28,16 @@ Link{
  - I still don't understand WHEN to use a pointer when declaring vars/params/structs/return types... I understand WHY, but I don't understand WHEN. By this i mean dereferencing a var with `*element` ??
  - `[]...` in Go is the way to spread a slice. Similar to spread operator in JS `...[]`
  - Initialize your return var up top if you already know what you're returning and it's type
+ - Why can you create a slice var in a recursive loop with `var ret []*html.Node` and append to it each recursive function call? Doesn't that statement re-intialize it every iteration ?? 
+
+## Questions
+ - Why can you create a slice var in a recursive loop with `var ret []*html.Node` and append to it each recursive function call? Doesn't that statement re-intialize it every iteration?  (see `linkNodes()` func)
+ - Rephrased above: Why can you initialize an array with `var` every recursive function call but still keep any values appended to it?. 
+
+A: I think it's because that `ret` var is actually appended to recursively from the bottom all the way back to the top of the call stack. Meaning, each iteration, the `ret` only cares about what it gets from the next level down. Traversing that call stack upwards, that `ret` will contain a spread out list of what it recieved from the level below, until at the very top you have the full list. 
+
+ - I still don't understand WHEN to use a pointer when declaring vars/params/structs/return types... I understand WHY, but I don't understand WHEN. By this I mean dereferencing or passing in a param with `*element` 
+ - In `buildLink()`, We range over the attributes of each Node using `range n.Attr {}` because n.Attr is a slice, not a key/value map. Why is n.Attr a slice? I only get one element anyway.
 
 ### Log
 
@@ -101,8 +111,71 @@ func dfs(n *html.Node, padding string) {
 
 #### Building Link Structs
  - create a new func `buildLink(n *htmlNode) Link {}`which takes in the pointer to a Node, build a Link struct and returns that
- - In buildLink, We range over the attributes of each Node using `range n.Attr {}` because n.Attr is a slice, not a key/value map. (Why is n.Attr a slice? I only get one element anyway. ??)
- - We can get the Href property from the Node element through its attributes property. However we cannot get the text using `n.Data` . This is because this link element is an ElementNode that wraps a TextNode. To get the text inside the we need to access `n.FirstChild.Data`.
+ - In `buildLink()`, We range over the attributes of each Node using `range n.Attr {}` because n.Attr is a slice, not a key/value map. (Why is n.Attr a slice? I only get one element anyway. ??)
+ - We can get the Href property from the Node element through its attributes property. However we cannot get the text using `n.Data` . This is because this link element is an ElementNode that wraps a TextNode. To get the text inside the we need to access `n.FirstChild.Data`. (INACCURATE - CORRECTED IN NEXT SECTION)
 
+
+`buildLink()` currently looks like this:
+```go
+func buildLink(n *html.Node) Link {
+	var ret Link
+	// Get Href property from Node
+	for _, attr := range n.Attr {
+		if attr.Key == "href" {
+			ret.Href = attr.Val
+			break
+		}
+	}
+	ret.Text = "TODO... Parse the Text"
+	return ret
+}
+```
+
+#### Extracting Node Text
+ - We actually can't access all the text of a link ElementNode with `n.FirstChild.Data` because that only returns a shallow copy of text exactly in the FirstChild. It will not return text in nested elements. 
+
+For example:
+```html
+<a href="/other-page"> 
+    A link to another page 
+	<span> some span  </span>
+</a>
+```
+
+Retreiving `n.FirstChild.Data` where `<a>` is `n.FirstChild` would only return "A link to another page".
+
+We want exactly "A link to another page some span". 
+ - We will have to perform a DFS to extract all the text inside a specific node.      
+ - This impelmentation is v similar to the recursive DFS `linkNodes()` func, but this isn't the most optimal way to do this. You could look into a Byte Buffer tio build the string in a more optimized way.
+
+- If text has a bunch of newlines we should probably trim it. The easiest way to do that is using `strings.Fields(str)`. This splits a string into an array using any amount of whitespace as the separator. This is very similar to Javascript `String.split()`  https://golang.org/pkg/strings/#Fields
+
+- After using `strings.Fields(str)` we can join them together using `strings.Join(strSlice)`. This takes a slice of strings and joins them with a single separator, in our case a single space. This is very similar to Javascript `Array.join()` except explicitly for string arrays. https://golang.org/pkg/strings/#Join
+
+- We can use `strings.Fields()` and `strings.Join()` to remove any whitespace and normalize the string to separate each word by exactly 1 space.
+
+- If text has a bunch of newlines we should probably trim it. The easiest way to do that is using `strings.Fields()`:  https://golang.org/pkg/strings/#Fields
+
+
+The code for the recursive `extractText()` function looks like:
+```go
+func extractText(n *html.Node) string {
+
+	// Base case for recursion,
+	// We have a TextNode, return the text data
+	if n.Type == html.TextNode {
+		return n.Data
+	}
+	// Node type is anything other than ElementNode	{
+	if n.Type != html.ElementNode {
+		return ""
+	}
+	var ret string
+	// DFS and append return value to string
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		ret += extractText(c) + ""
+	}
+
+	return strings.Join(strings.Fields(ret), " ")
 }
 ```

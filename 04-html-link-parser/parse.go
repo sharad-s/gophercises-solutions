@@ -3,6 +3,7 @@ package link
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"golang.org/x/net/html"
 )
@@ -46,8 +47,28 @@ func buildLink(n *html.Node) Link {
 			break
 		}
 	}
-	ret.Text = "TODO... Parse the Text"
+	ret.Text = extractText(n)
 	return ret
+}
+
+func extractText(n *html.Node) string {
+
+	// Base case for recursion,
+	// We have a TextNode, return the text data
+	if n.Type == html.TextNode {
+		return n.Data
+	}
+	// Node type is anything other than ElementNode	{
+	if n.Type != html.ElementNode {
+		return ""
+	}
+	var ret string
+	// DFS and append return value to string
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		ret += extractText(c) + ""
+	}
+
+	return strings.Join(strings.Fields(ret), " ")
 }
 
 func linkNodes(n *html.Node) []*html.Node {
