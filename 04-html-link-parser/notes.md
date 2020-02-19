@@ -25,6 +25,8 @@ Link{
  - Get something up and running first. Use  x/net/html pkg.
    - x/net/html are by the go team but not part of the stdlib. sometimes they get merged into the stdlib 
    - done this way so it can have a bit more flexibility
+ - I still don't understand WHEN to use a pointer when declaring vars/params/structs/return types... I understand WHY, but I don't understand WHEN. By this i mean dereferencing a var with `*element`
+ - `[]...` in Go is the way to spread a slice. Similar to spread operator in JS `...[]`
 
 ### Log
 
@@ -91,3 +93,7 @@ func dfs(n *html.Node, padding string) {
 	}
 }
 ```
+
+### Finding Link Nodes
+ - Want to change this `Parse()` function so that as we're going through the DFS and we're looking ata ll the diff nodes, as soon as we have a link, we want to note that we have a link, and save it somewhere. Then our `Parse()` func can use that to build the `Link` types we created earlier.
+ - 

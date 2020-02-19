@@ -19,8 +19,36 @@ func Parse(r io.Reader) ([]Link, error) {
 	if err != nil {
 		return nil, err
 	}
-	dfs(doc, "")
+
+	nodes := linkNodes(doc)
+	for _, node := range nodes {
+		fmt.Printf("%+v\n", node)
+	}
+	// dfs(doc, "")
+	//1. Find <a> nodes in doc
+	//2. for each link node...
+	//2.a build a link
+	//3. return Links
 	return nil, nil
+}
+
+func linkNodes(n *html.Node) []*html.Node {
+
+	// Base case for recursion. We've got a link Node
+	// return slice [*html.Node(n)]
+	if n.Type == html.ElementNode && n.Data == "a" {
+		return []*html.Node{n}
+	}
+	//Declare up here because we know we're going to return an *html.Node array
+	var ret []*html.Node
+
+	// Do the depth first search
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		// We want to append whatever link nodes are returned
+		ret = append(ret, linkNodes(c)...)
+	}
+
+	return ret
 }
 
 // Name the var n to represent Node
