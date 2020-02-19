@@ -38,7 +38,7 @@ Link{
 #### HTML Docs are Trees
  - HTML file parsing using tree traversal..  
  - HTML Files are really just trees:
- - <body> is a root node and it has children nodes (like a <h1> node and a <div> node). Some children nodes may have their own children (like the <div> node having two separate <a> nodes as children)
+ - `<body>` is a root node and it has children nodes (like a `<h1>` node and a `<div>` node). Some children nodes may have their own children (like the `<div>` node having two separate `<a>` nodes as children)
  - the net/html package is going to be returning things called Nodes. It might have text in it, so it will be a TextNode, 
  -    
 
