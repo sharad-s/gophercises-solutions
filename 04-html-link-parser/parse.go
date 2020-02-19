@@ -23,7 +23,7 @@ func Parse(r io.Reader) ([]Link, error) {
 	return nil, nil
 }
 
-// Use n to represent Node
+// Name the var n to represent Node
 func dfs(n *html.Node, padding string) {
 	msg := n.Data
 

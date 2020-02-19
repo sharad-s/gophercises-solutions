@@ -55,10 +55,10 @@ Link{
  - We're using trees and recursive searching here (Depth-First Search)
 How do types work with nodes?
      - TextNode: raw text
-     - DocumentNode: Wrapper node for everything. Wraps even <html> tag. It's the parent root node.
-     - ElementNode: Any element like <div>, <a> <h1> <p> etc
+     - DocumentNode: Wrapper node for everything. Wraps even `<html>` tag. It's the parent root node.
+     - ElementNode: Any element like ` <html> <div> <a> <h1> <p>` etc...
      - CommentNode: HTML Comment
-     - DoctypeNode: <!DOCTYPE html> type of shit
+     - DoctypeNode: `<!DOCTYPE html>` type of shit
  - When you're looking at each node you can check the node type (`if n.Type == html.ElementNode && n.Data == "a" {}`) 
 
 First we gotta write the parsing function
