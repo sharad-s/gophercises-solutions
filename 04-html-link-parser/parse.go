@@ -19,17 +19,35 @@ func Parse(r io.Reader) ([]Link, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	//1. Find all <a> nodes in doc
 	nodes := linkNodes(doc)
+	//2. For each link node...
+	var links []Link
 	for _, node := range nodes {
-		fmt.Printf("%+v\n", node)
+		// fmt.Printf("%+v\n", node)
+		//2a. Build a link
+		links = append(links, buildLink(node))
 	}
+
+	// Practice DFS on document
 	// dfs(doc, "")
-	//1. Find <a> nodes in doc
-	//2. for each link node...
-	//2.a build a link
-	//3. return Links
-	return nil, nil
+
+	//3. Return Links
+	return links, nil
+}
+
+func buildLink(n *html.Node) Link {
+	var ret Link
+
+	// Get Href property from Node
+	for _, attr := range n.Attr {
+		if attr.Key == "href" {
+			ret.Href = attr.Val
+			break
+		}
+	}
+	ret.Text = "TODO... Parse the Text"
+	return ret
 }
 
 func linkNodes(n *html.Node) []*html.Node {

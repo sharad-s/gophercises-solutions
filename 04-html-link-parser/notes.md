@@ -20,13 +20,14 @@ Link{
 }
 ```
 
-### Random
+## Random
  - Practice parsing HTML documents and seeing how to use net/html package
  - Get something up and running first. Use  x/net/html pkg.
    - x/net/html are by the go team but not part of the stdlib. sometimes they get merged into the stdlib 
    - done this way so it can have a bit more flexibility
- - I still don't understand WHEN to use a pointer when declaring vars/params/structs/return types... I understand WHY, but I don't understand WHEN. By this i mean dereferencing a var with `*element`
+ - I still don't understand WHEN to use a pointer when declaring vars/params/structs/return types... I understand WHY, but I don't understand WHEN. By this i mean dereferencing a var with `*element` ??
  - `[]...` in Go is the way to spread a slice. Similar to spread operator in JS `...[]`
+ - Initialize your return var up top if you already know what you're returning and it's type
 
 ### Log
 
@@ -94,6 +95,14 @@ func dfs(n *html.Node, padding string) {
 }
 ```
 
-### Finding Link Nodes
+#### Finding Link Nodes
  - Want to change this `Parse()` function so that as we're going through the DFS and we're looking ata ll the diff nodes, as soon as we have a link, we want to note that we have a link, and save it somewhere. Then our `Parse()` func can use that to build the `Link` types we created earlier.
- - 
+
+
+#### Building Link Structs
+ - create a new func `buildLink(n *htmlNode) Link {}`which takes in the pointer to a Node, build a Link struct and returns that
+ - In buildLink, We range over the attributes of each Node using `range n.Attr {}` because n.Attr is a slice, not a key/value map. (Why is n.Attr a slice? I only get one element anyway. ??)
+ - We can get the Href property from the Node element through its attributes property. However we cannot get the text using `n.Data` . This is because this link element is an ElementNode that wraps a TextNode. To get the text inside the we need to access `n.FirstChild.Data`.
+
+}
+```
