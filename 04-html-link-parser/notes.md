@@ -179,3 +179,6 @@ func extractText(n *html.Node) string {
 	return strings.Join(strings.Fields(ret), " ")
 }
 ```
+
+
+#### Parsing the examples
