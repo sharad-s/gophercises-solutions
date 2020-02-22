@@ -24,4 +24,28 @@ Once you have determined all of the pages of a site, your sitemap builder should
 
 Where each page is listed in its own <url> tag and includes the <loc> tag inside of it.
 
-From there you will likely need to figure out a way to determine if a link goes to the same domain or a different one. If it goes to a different domain we shouldn't include it in our sitemap builder, but if it is the same domain we should. Remember that links to the same domain can be in the format of /just-the-path or https://domain.com/with-domain, but both go to the same domain.
+From there you will likely need to figure out a way to determine if a link goes to the same domain or a different one. If it goes to a different domain we shouldn't include it in our sitemap builder, but if it is the same domain we should. Remember that links to the same domain can be in the format of `/just-the-path` or https://domain.com/with-domain, but both go to the same domain.
+
+### Random
+ - Cobra is a good tool for building CLI applications
+ 
+### Overview
+  - Useful - whenever you provide your site to a search engine, you usually provide a sitemap. Sitemap builders exist but this can help teach you something about how they work.
+  - Use the link parser package we created before, use that to take the response body returned from querying a page, and parse the links out. 
+  - Once you get the links for a page, you're going to figure out whic hlinks go to a page on the same domain. (no external links). These types of links are in the format `/just-the-path` or `https://domain.com//with-domain`
+  - If you get just the path, you might have to do some work to get the domain included
+  - Forget mailto links, fragment links, etc.
+  - Be aware that links can be cyclical ( only sitemap the pages )
+  ```  
+   /about -> /contact
+   /contact -> /pricing
+   /pricing -> /about
+  ```
+
+  
+#### Useful packages
+  - net/http
+  - linkMap package
+  - encoding/xml
+  - flag 
+ 
