@@ -70,3 +70,24 @@ Once we have that list, we will store it somewhere to associate the current page
  - Traverse the newly created list of links and index the links on each of those pages. Create a new list associating these 2nd layer links with their children. Do this recursively 
  
  This is basically a Breadth-First Search (BFS)
+ 
+
+ ### Main go
+
+ ### GET-ting a webpage
+  - https://golang.org/pkg/net/http/
+  - use net/http to send outgoing GET/POST/PUT/etc requests 
+  - the client MUST close the request once its done with it - to prevent memory leaks
+  - use `defer` if you're fully handling your GET request in one function. May not be able to use defer if you have to pass the request forward (you would still have to close the req).
+  ```go
+  defer resp.Body.Close()
+  ```
+
+  `defer` tells go to run the following statement right when the function exits.
+ Q:  Why not just write the code to clean up at the very end of your function? 
+ A: `defer` helps readability and understandability of code - the cleanup is located right next to its associated code. Also if you have some case where you return before the end of the function, any cleanup at the end of the function would not be run. With `defer` it would be run.
+
+
+  - use `io.Copy()` which allows you to copy from a io.Reader to an io.Writer (such as STDOUT). This works as compared to `fmt.Println()` because with fmt.Println, you are printing out the memory address and Go data structure for the response body. With STDOUT you are directly printing out the raw Resp.Body since you STD is a writer interface.  
+
+  
