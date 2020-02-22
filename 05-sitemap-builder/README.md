@@ -28,7 +28,7 @@ From there you will likely need to figure out a way to determine if a link goes 
 
 ### Random
  - Cobra is a good tool for building CLI applications
- 
+
 ### Overview
   - Useful - whenever you provide your site to a search engine, you usually provide a sitemap. Sitemap builders exist but this can help teach you something about how they work.
   - Use the link parser package we created before, use that to take the response body returned from querying a page, and parse the links out. 
@@ -49,3 +49,24 @@ From there you will likely need to figure out a way to determine if a link goes 
   - encoding/xml
   - flag 
  
+
+### Strategy
+- You could draw a tree that represents your website
+- RootPage '/'
+   Children: /page/2, /poop, /pee, https://github.com/something 
+   Su
+
+We need to know two things: 1) What we do when we get to an individual page and 2) What to do at a higher level to know what the pages we need are
+
+Every time we go to a page:
+   - Get the HTML for the page
+   - Use the link-parser package to parse out all the links for that page
+   - Once we get the links, we will try to clean them up (add a domain to links that don't have a domain)
+   - Go through all those links again and filter out irrelevant links (mailto links, external links.)
+
+At this point we will have a list of links that go to other pages on the same domain.
+Once we have that list, we will store it somewhere to associate the current page with the links it has. Next:
+
+ - Traverse the newly created list of links and index the links on each of those pages. Create a new list associating these 2nd layer links with their children. Do this recursively 
+ 
+ This is basically a Breadth-First Search (BFS)
