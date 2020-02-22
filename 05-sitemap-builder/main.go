@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
-	"io"
+	"fmt"
+	link "gophercises/04-html-link-parser"
 	"net/http"
-	"os"
+	"net/url"
+	"strings"
 )
 
 func main() {
@@ -21,12 +23,50 @@ func main() {
 		6. Print out XML
 	*/
 
+	// Make GET request to URL
 	resp, err := http.Get(*urlFlag)
 	if err != nil {
 		// handle error
 		panic(err)
 	}
+	// Close Response at the end
 	defer resp.Body.Close()
 
-	io.Copy(os.Stdout, resp.Body)
+	// Output resp.Body to STDOUT
+	// io.Copy(os.Stdout, resp.Body)
+
+	// Use link-parser to extract links from HTML and print each out
+	links, _ := link.Parse(resp.Body)
+	// for _, l := range links {
+	// 	fmt.Println(l)
+	// }
+
+	// Create Base URL from Request
+	reqURL := resp.Request.URL
+	baseURL := &url.URL{
+		Scheme: reqURL.Scheme,
+		Host:   reqURL.Host,
+	}
+	base := baseURL.String()
+	fmt.Println(base)
+
+	// Loop through links on page, transform links
+	// Append to hrefs slice
+	var hrefs []string
+	for _, l := range links {
+		switch {
+		// link starts with /, add baseURL
+		case strings.HasPrefix(l.Href, "/"):
+			hrefs = append(hrefs, base+l.Href)
+		// link starts with http:
+		case strings.HasPrefix(l.Href, "http"):
+			hrefs = append(hrefs, l.Href)
+		}
+	}
+
+	// Print out hrefs slice
+	for _, href := range hrefs {
+		fmt.Println(href)
+	}
+
 }

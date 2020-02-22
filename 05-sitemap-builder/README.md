@@ -90,4 +90,24 @@ Once we have that list, we will store it somewhere to associate the current page
 
   - use `io.Copy()` which allows you to copy from a io.Reader to an io.Writer (such as STDOUT). This works as compared to `fmt.Println()` because with fmt.Println, you are printing out the memory address and Go data structure for the response body. With STDOUT you are directly printing out the raw Resp.Body since you STD is a writer interface.  
 
-  
+
+### Parsing and Building Links
+ Cases: 
+  - /some-path (gophercises.com/some-path)
+  - mailto:email@provider.com (fragment)
+ Three rules
+ - If URL starts with slash, assume its the same domain and prefix that domain
+ - If the URL starts with http:// or https:// and it has the domain you want to start with, we'll use it
+ - If it starts with Anything else, skip it
+
+ Set up base domain
+  - look at domain from resp.Request.URL
+  - use just the reqUrl.Host to extract the base url
+  ```go
+  reqURL := resp.Request.URL
+	baseURL := &url.URL{
+		Scheme: reqURL.Scheme,
+		Host:   reqURL.Host,
+  }
+  ```
+
