@@ -29,7 +29,9 @@ From there you will likely need to figure out a way to determine if a link goes 
 ### Random
 
 - Cobra is a good tool for building CLI applications
-- I'm still ahving trouble wrapping my head around functions returning functions, and how calling those respective functions really works. 
+- I'm still ahving trouble wrapping my head around functions returning functions, and how calling those respective functions really works.
+- Reminder: use `var` to declare a variable and its type without setting it. use `:=` to declare a variable and set it
+- wtf is struct{}{}
 
 ### Overview
 
@@ -127,7 +129,7 @@ Host:   reqURL.Host,
 - function `get(urlStr)` makes the request, and returns `hrefs(resp.Body, baseURL)`. The final return value of this is a `[]string`that contains all the links located on that page, normalized to start with http://{baseUrl || externalURL}/ or
 - write func `filter(baseURL, links)` that ranges through the links and returns only links that are prefixed with the baseUrl.
 - wrap the return statement of `get()` with filter() such that it looks like `return filter(baseURL, hrefs(resp.Body, baseURL))`
-- since our filter function is pretty brittle, we will replace the baseURL param with a functional paramter `keepFn(string) bool` which will. This allows us to write custom rules for what to "keep" in our filter. 
+- since our filter function is pretty brittle, we will replace the baseURL param with a functional paramter `keepFn(string) bool` which will. This allows us to write custom rules for what to "keep" in our filter.
 - this new fucntion will be written as following:
 
 ```go
@@ -138,3 +140,17 @@ func withPrefix(pfx string) func(string) bool {
 	}
 }
 ```
+
+### Implementing BFS
+
+- create a new flag `depth` with default depth as 3. Increase this as you finish your code later to test for circular traversals
+- in a new `bfs(urlStr string, maxDepth int) []string` function, create a `seen` variable. `seen = make(map[string]struct{})`. It's a map with key `string` and value `{}`. This is a map of all the URLs we've ever visited. Because there's no good reason to get all the links again, we can just store each URL as a key in this map. The struct could actually be a bool, but an empty struct uses a little less memory somehow. So in effect this map acts more like a "unique set" of items that can perform lookups and reads quickly. (A slice would take more time to find what you're looking for)
+- Implement a queue. `var q map[string]struct{}`
+- implmenet a "next queue". next queue will actually have a value in it. So we'll add all the links we haven't seen on all the links in q to nq, then assign  nq to q, then repeat our loop.
+- range over 
+
+
+- TODO:  rewatch this video to undertand
+
+- Minr optiimizations:  Mark the URL of the page we "tried" to get the page with, not the actual URL that was it. The reasoning for that is in case the URL you're trying actually redirects, maybe that redirect will change, so you want to keep the URL you tried with.
+ - panic might make more senseo to return something else IE an empty string slice. 

@@ -12,6 +12,8 @@ import (
 
 func main() {
 	urlFlag := flag.String("url", "https://gophercises.com", "the url that you want to build a sitemap for")
+	depth := flag.Int("depth", 3, "the maximum number of links deep to traverse")
+
 	flag.Parse()
 	// fmt.Println(*urlFlag)
 
@@ -23,7 +25,7 @@ func main() {
 		5. Find all the pages (BFS)
 		6. Print out XML
 	*/
-	pages := get(*urlFlag)
+	pages := bfs(*urlFlag, *depth)
 	for _, href := range pages {
 		fmt.Println(href)
 	}
@@ -87,6 +89,39 @@ func hrefs(body io.Reader, base string) []string {
 		case strings.HasPrefix(l.Href, "http"):
 			ret = append(ret, l.Href)
 		}
+	}
+	return ret
+}
+
+func bfs(urlStr string, maxDepth int) []string {
+	// C
+	seen := make(map[string]struct{})
+
+	var q map[string]struct{}
+	nq := map[string]struct{}{
+		urlStr: struct{}{},
+	}
+	for i := 0; i < maxDepth; i++ {
+		q, nq = nq, make(map[string]struct{})
+
+		// Range over current queue, extract key into `url`
+		for url, _ := range q {
+			// Check `seen` map for url, if seen then skip
+			if _, ok := seen[url]; ok {
+				continue
+			}
+			// Not seen, mark it as seen.
+			seen[url] = struct{}{}
+			// Get next links for this url
+			for _, link := range get(url) {
+				nq[link] = struct{}{}
+			}
+		}
+	}
+	// Create return array of url strings
+	ret := make([]string, 0, len(seen))
+	for url, _ := range seen {
+		ret = append(ret, url)
 	}
 	return ret
 }
