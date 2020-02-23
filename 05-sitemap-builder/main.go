@@ -1,14 +1,28 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"fmt"
 	link "gophercises/04-html-link-parser"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 )
+
+// Has to be split this way because we want <url> <loc /> </url> for each page
+type loc struct {
+	Value string `xml:"loc"`
+}
+
+type urlset struct {
+	Urls  []loc  `xml:"url"`
+	Xmlns string `xml:"xmlns,attr"`
+}
+
+const xmlns string = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 func main() {
 	urlFlag := flag.String("url", "https://gophercises.com", "the url that you want to build a sitemap for")
@@ -26,9 +40,25 @@ func main() {
 		6. Print out XML
 	*/
 	pages := bfs(*urlFlag, *depth)
-	for _, href := range pages {
-		fmt.Println(href)
+	// for _, href := range pages {
+	// 	// fmt.Println(href)
+	// }
+
+	// XML parse
+	toXML := urlset{
+		Xmlns: xmlns,
 	}
+	for _, page := range pages {
+		toXML.Urls = append(toXML.Urls, loc{page})
+	}
+
+	fmt.Print(xml.Header)
+	enc := xml.NewEncoder(os.Stdout)
+	enc.Indent("", "  ")
+	if err := enc.Encode(toXML); err != nil {
+		panic(err)
+	}
+	fmt.Println()
 }
 
 func filter(links []string, keepFn func(string) bool) []string {
@@ -40,13 +70,6 @@ func filter(links []string, keepFn func(string) bool) []string {
 		}
 	}
 	return ret
-}
-
-// Returns a func(string) bool and not just a "bool" because the func needs to be run elsewhere (??)
-func withPrefix(pfx string) func(string) bool {
-	return func(link string) bool {
-		return strings.HasPrefix(link, pfx)
-	}
 }
 
 func get(urlStr string) []string {
@@ -105,7 +128,7 @@ func bfs(urlStr string, maxDepth int) []string {
 		q, nq = nq, make(map[string]struct{})
 
 		// Range over current queue, extract key into `url`
-		for url, _ := range q {
+		for url := range q {
 			// Check `seen` map for url, if seen then skip
 			if _, ok := seen[url]; ok {
 				continue
@@ -120,8 +143,15 @@ func bfs(urlStr string, maxDepth int) []string {
 	}
 	// Create return array of url strings
 	ret := make([]string, 0, len(seen))
-	for url, _ := range seen {
+	for url := range seen {
 		ret = append(ret, url)
 	}
 	return ret
+}
+
+// Returns a func(string) bool and not just a "bool" because the func needs to be run elsewhere (??)
+func withPrefix(pfx string) func(string) bool {
+	return func(link string) bool {
+		return strings.HasPrefix(link, pfx)
+	}
 }

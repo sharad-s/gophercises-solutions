@@ -31,7 +31,8 @@ From there you will likely need to figure out a way to determine if a link goes 
 - Cobra is a good tool for building CLI applications
 - I'm still ahving trouble wrapping my head around functions returning functions, and how calling those respective functions really works.
 - Reminder: use `var` to declare a variable and its type without setting it. use `:=` to declare a variable and set it
-- wtf is struct{}{}
+- wtf is struct{}{} A: declaring an empty struct
+- explain struct tags
 
 ### Overview
 
@@ -146,11 +147,63 @@ func withPrefix(pfx string) func(string) bool {
 - create a new flag `depth` with default depth as 3. Increase this as you finish your code later to test for circular traversals
 - in a new `bfs(urlStr string, maxDepth int) []string` function, create a `seen` variable. `seen = make(map[string]struct{})`. It's a map with key `string` and value `{}`. This is a map of all the URLs we've ever visited. Because there's no good reason to get all the links again, we can just store each URL as a key in this map. The struct could actually be a bool, but an empty struct uses a little less memory somehow. So in effect this map acts more like a "unique set" of items that can perform lookups and reads quickly. (A slice would take more time to find what you're looking for)
 - Implement a queue. `var q map[string]struct{}`
-- implmenet a "next queue". next queue will actually have a value in it. So we'll add all the links we haven't seen on all the links in q to nq, then assign  nq to q, then repeat our loop.
-- range over 
+- implmenet a "next queue". next queue will actually have a value in it. So we'll add all the links we haven't seen on all the links in q to nq, then assign nq to q, then repeat our loop.
+- range over
+
+* TODO: rewatch this video to undertand
+
+* Minr optiimizations: Mark the URL of the page we "tried" to get the page with, not the actual URL that was it. The reasoning for that is in case the URL you're trying actually redirects, maybe that redirect will change, so you want to keep the URL you tried with.
+* panic might make more senseo to return something else IE an empty string slice.
+
+### Outputting XML
+
+We want the following XML:
+
+```xml
+<url>
+  <loc> {loc} </loc>
+</url>
+```
+
+So we write:
+
+```go
+// Has to be split this way because we want <url> <loc /> </url> for each page
+type loc struct {
+	Value string `xml:"loc"`
+}
+
+// i dont udnerstand these struct tags
+type urlset struct {
+  URLs []loc `xml:"url"`
+  XMLns string `xml: "xmlns, attr"`
+}
+
+const xmlns string = "poop"
+
+func main() {
+  //... pages
+	pages := bfs(*urlFlag, *depth)
+
+	// XML parse
+	toXML := urlset{
+    XMLns : xmlns
+  }
+	for _, page := range pages {
+		toXML.URLs = append(toXML.URLs, loc{page})
+  }
+  enc:= xml.NewEncoder(os.Stdout)
+  if err:= enc.Encode(toXML); err != nil {
+    panic(err)
+  }
+  fmt.Println()
+}
+```
+- https://golang.org/pkg/encoding/xml/#Encoder.Encode
+- i am too tired to write up on this video. i just want to move on.
 
 
-- TODO:  rewatch this video to undertand
-
-- Minr optiimizations:  Mark the URL of the page we "tried" to get the page with, not the actual URL that was it. The reasoning for that is in case the URL you're trying actually redirects, maybe that redirect will change, so you want to keep the URL you tried with.
- - panic might make more senseo to return something else IE an empty string slice. 
+Optimizations: 
+- ? 
+- ??? 
+- Watch after 9mins again
